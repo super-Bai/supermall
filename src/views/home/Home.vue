@@ -1,47 +1,43 @@
 <template>
-    <div>
-      <h3>{{text}}</h3>
+    <div id="home">
+      <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+      <swiper>
+        <swiper-item v-for="(value,key) in bannerList" :key="key">
+          <a :href="value.link"><img :src="value.image" alt=""></a>
+        </swiper-item>
+      </swiper>
     </div>
 </template>
 
 <script>
-export default {
-  name: 'Home',
-  data () {
-    return {
-      arr: ['あ', 'い', 'う', 'え', 'お',
-        'か', 'き', 'く', 'け', 'こ',
-        'さ', 'し', 'す', 'せ', 'そ',
-        'た', 'ち', 'つ', 'て', 'と',
-        'な', 'に', 'ぬ', 'ね', 'の',
-        'は', 'ひ', 'ふ', 'へ', 'ほ',
-        'ま', 'み', 'む', 'め', 'も',
-        'や', 'ゆ', 'よ', 'わ', 'を',
-        'ら', 'り', 'る', 'れ', 'ろ',
-        'ん'],
-      text: ''
-    }
-  },
-  created () {
-    let a, b, tem
-    for (let i = 0; i < 300; i++) {
-      a = Math.round(Math.random() * 45)
-      b = Math.round(Math.random() * 45)
-      tem = this.arr[a]
-      this.arr[a] = this.arr[b]
-      this.arr[b] = tem
-    }
-    for (let i = 0; i < 46; i++) {
-      if (i > 0 & (i + 1) % 5 === 0) {
-        this.text += this.arr[i] + ''
-      } else {
-        this.text += this.arr[i] + ''
+  import NavBar from 'components/common/navbar/NavBar'
+  import {sendHomeData} from "network/home"
+
+  import {Swiper, SwiperItem} from 'components/common/swiper/index'
+
+  export default {
+    name: 'Home',
+    components: {
+      NavBar,
+      Swiper,
+      SwiperItem
+    },
+    data () {
+      return {
+        bannerList: ''
       }
+    },
+    created() {
+      sendHomeData().then(res => {
+        this.bannerList = res.data.banner.list;
+      })
     }
   }
-}
 </script>
 
 <style scoped>
-
+  .home-nav {
+    background-color: var(--color-tint);
+    color: #fff;
+  }
 </style>
