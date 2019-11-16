@@ -39,7 +39,6 @@
                 let firstLi = document.getElementsByClassName('first')[0];
                 let lastLi = document.getElementsByClassName('last')[0];
                 let items = document.querySelectorAll('.swiper-item');
-                console.log(items.length);
                 firstLi.innerHTML = items[items.length-1].innerHTML;
                 lastLi.innerHTML = items[0].innerHTML;
                 this.itemNum=items.length-1;
@@ -66,7 +65,6 @@
                 ele.style.webkitTransform = "translateX(" + xwidth + "px)";
             },
             banner () {
-              console.log('jdhfjshjd');
               var ban=this;
                 /** 轮播图分析 */
                 /** 1 自动轮播且无缝 [定时器、过渡动画]
@@ -160,7 +158,6 @@
                             ban.addTransition(imgBox); // 设置过渡动画
                             ban.setTranslateX(imgBox, -index * width);
                             var indexTemp;
-                          console.log(index);
                           if (index >= length-1) {
                                 indexTemp = 1;
                             }

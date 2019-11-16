@@ -1,34 +1,34 @@
 <template>
   <div class="tab-contral">
-    <div class="tab-contral-item" v-for="(item, key) in title" :class="{active : currentIndex ===key}" @click="setCurrent(key)">
+    <div class = "tab-contral-item" v-for = "(item, key) in title" :key="key" :class = "{active : currentIndex === key}" @click = "setCurrent(key)">
       <span>{{item}}</span>
     </div>
   </div>
 </template>
 
 <script>
-    export default {
-        name: "TabContral",
-      props: {
-          title: {
-            type: Array,
-            default() {
-              return []
-            }
-          }
-      },
-      data() {
-          return {
-            currentIndex: 0
-          }
-      },
-      methods: {
-        setCurrent (index) {
-          this.currentIndex = index;
-          this.$emit('tabClick', index)
+  export default {
+    name: "TabContral",
+    props: {
+      title: {
+        type: Array,
+        default() {
+          return []
         }
       }
+    },
+    data() {
+      return {
+        currentIndex: 0
+      }
+    },
+    methods: {
+      setCurrent (index) {
+        this.currentIndex = index;
+        this.$emit('tabClick', index)
+      }
     }
+  }
 </script>
 
 <style scoped>

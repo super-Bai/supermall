@@ -1,14 +1,19 @@
 <template>
     <div id="home">
       <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-      <scroll class="content" ref="scroll">
+      <scroll class="content"
+              ref="scroll"
+              :probeType="3"
+              @scrollBackTop="scrollBackTop"
+              :pullUpLoad="true"
+              @pullingUp="pullingUp">
         <home-swiper :bannerList="bannerList"/>
         <recommend-view :recommendList="recommendList"/>
         <feature-view/>
         <tab-contral class="tab-contral" :title="['流行', '新款', '精选']" @tabClick="tabClick"/>
         <goods-list :goods="goodsList"/>
       </scroll>
-      <back-top @click.native="backTop"/>
+      <back-top @click.native="backTop" v-show="isShowBackTop"/>
     </div>
 </template>
 
@@ -24,6 +29,7 @@
   import BackTop from 'components/content/backTop/BackTop'
 
   import {sendHomeData, sendHomeGoodsdata} from "network/home"
+  import {debounce} from "common/utils";
 
   export default {
     name: 'Home',
@@ -46,20 +52,34 @@
           'new': {page: 0, list: []},
           'sell': {page: 0, list: []}
         },
-        currentTab: 'pop'
+        currentTab: 'pop',
+        isShowBackTop: false
       }
     },
-    created() {
+    created () {
       this.sendHomeData()
 
       this.sendHomeGoodsdata('pop')
       this.sendHomeGoodsdata('new')
       this.sendHomeGoodsdata('sell')
     },
+    mounted () {
+      const refresh = debounce(this.$refs.scroll.refresh, 50)
+      //事件总线监听图片加载（加防抖操作）
+      this.$bus.$on('imgLoad', () => {
+        refresh()
+      })
+    },
     methods: {
       /**
        *  监听事件方法
        */
+      pullingUp () {
+        this.sendHomeGoodsdata(this.currentTab)
+      },
+      scrollBackTop (position) {
+        this.isShowBackTop = (-position.y) > 1000
+      },
       tabClick (index) {
         switch (index) {
           case 0 : this.currentTab = 'pop'
@@ -86,9 +106,10 @@
       sendHomeGoodsdata: function (type) {
         const page = this.goods[type].page + 1
         sendHomeGoodsdata(type, page).then(res => {
-          console.log(res)
           this.goods[type].list.push(...res.data.list)
           this.goods[type].page += 1
+
+          this.$refs.scroll.finishPullUp()
         })
       }
     },
