@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-list-item">
+  <div class="goods-list-item" @click="goodsDetail">
     <img :src="item.show.img" alt="" @load="imgLoad">
     <div class="item-message">
       <p>{{item.title}}</p>
@@ -10,6 +10,8 @@
 </template>
 
 <script>
+  import {getDetailData} from "network/detail";
+
   export default {
     name: "GoodsListItem",
     props: {
@@ -23,6 +25,10 @@
     methods: {
       imgLoad () {
         this.$bus.$emit('imgLoad')
+      },
+      goodsDetail () {
+        this.$router.push('/detail/'+this.item.iid)
+        getDetailData(this.item.iid)
       }
     }
   }

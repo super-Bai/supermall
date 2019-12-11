@@ -1,273 +1,245 @@
 <template>
-    <div class="swiper">
-        <div class="banner">
-            <ul class="clearfix">
-                <li class="first"></li>
-                <slot></slot>
-                <li class="last"></li>
-            </ul>
-            <ul class="clearfix" :style="{display: ifclub ? 'block' : 'none'}">
-                <li class="now"></li>
-                <li v-for="item in itemNum"></li>
-            </ul>
-        </div>
+  <div id="hy-swiper">
+    <div class="swiper" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
+      <slot></slot>
     </div>
+    <slot name="indicator">
+    </slot>
+    <div class="indicator">
+      <slot name="indicator" v-if="showIndicator && slideCount>1">
+        <div v-for="(item, index) in slideCount" class="indi-item" :class="{active: index === currentIndex-1}" :key="index"></div>
+      </slot>
+    </div>
+  </div>
 </template>
 
 <script>
-    export default {
-        name: "Swiper",
-        props: {
-            ifclub: {
-                type: Boolean,
-                default: true
-            },
-            switchTime: {
-                type: Number,
-                default: 3000
-            }
-        },
-        data () {
-          return {
-              itemNum: 0,
-            ifItemOk: false,
-            kk: 0
+  export default {
+    name: "Swiper",
+    props: {
+      interval: {
+        type: Number,
+        default: 3000
+      },
+      animDuration: {
+        type: Number,
+        default: 300
+      },
+      moveRatio: {
+        type: Number,
+        default: 0.25
+      },
+      showIndicator: {
+        type: Boolean,
+        default: true
+      }
+    },
+    data: function () {
+      return {
+        slideCount: 0, // 元素个数
+        totalWidth: 0, // swiper的宽度
+        swiperStyle: {}, // swiper样式
+        currentIndex: 1, // 当前的index
+        scrolling: false, // 是否正在滚动
+      }
+    },
+    mounted: function () {
+      // 1.操作DOM, 在前后添加Slide
+      setTimeout(() => {
+        this.handleDom();
+
+        // 2.开启定时器
+        this.startTimer();
+      }, 100)
+    },
+    methods: {
+      /**
+       * 定时器操作
+       */
+      startTimer: function () {
+        this.playTimer = window.setInterval(() => {
+          this.currentIndex++;
+          this.scrollContent(-this.currentIndex * this.totalWidth);
+        }, this.interval)
+      },
+      stopTimer: function () {
+        window.clearInterval(this.playTimer);
+      },
+
+      /**
+       * 滚动到正确的位置
+       */
+      scrollContent: function (currentPosition) {
+        // 0.设置正在滚动
+        this.scrolling = true;
+
+        // 1.开始滚动动画
+        this.swiperStyle.transition ='transform '+ this.animDuration + 'ms';
+        this.setTransform(currentPosition);
+
+        // 2.判断滚动到的位置
+        this.checkPosition();
+
+        // 4.滚动完成
+        this.scrolling = false
+      },
+
+      /**
+       * 校验正确的位置
+       */
+      checkPosition: function () {
+        window.setTimeout(() => {
+          // 1.校验正确的位置
+          this.swiperStyle.transition = '0ms';
+          if (this.currentIndex >= this.slideCount + 1) {
+            this.currentIndex = 1;
+            this.setTransform(-this.currentIndex * this.totalWidth);
+          } else if (this.currentIndex <= 0) {
+            this.currentIndex = this.slideCount;
+            this.setTransform(-this.currentIndex * this.totalWidth);
           }
-        },
-        methods: {
-            init () {
-                let firstLi = document.getElementsByClassName('first')[0];
-                let lastLi = document.getElementsByClassName('last')[0];
-                let items = document.querySelectorAll('.swiper-item');
-                firstLi.innerHTML = items[items.length-1].innerHTML;
-                lastLi.innerHTML = items[0].innerHTML;
-                this.itemNum=items.length-1;
-                setTimeout(() => {
-                  this.banner()
-                },500)
-            },
-            /* 动态设置过渡 */
-            addTransition (ele) {
-                ele.style.transition = "all .6s";
-                ele.style.webkitTransition = "all .6s";
-            },
-            /* 移除过渡效果 */
-            removeTransition (ele) {
-                ele.style.transition = "none";
-                ele.style.webkitTransition = "none";
-            },
-            /* 设置容器平移 -- 也就是滑动动画
-	        ele:当前元素
-	        xwidth:平移的距离
-            */
-            setTranslateX (ele, xwidth) {
-                ele.style.transform = "translateX(" + xwidth + "px)";
-                ele.style.webkitTransform = "translateX(" + xwidth + "px)";
-            },
-            banner () {
-              var ban=this;
-                /** 轮播图分析 */
-                /** 1 自动轮播且无缝 [定时器、过渡动画]
-                 *  2 点要随着图片的轮播而改变 [根据索引切换]
-                 *  3 滑动效果 [touch事件]
-                 *  4 图片随着点而变化
-                 *  5 滑动结束的时候，如果滑动的距离不超过屏幕的1/3，就恢复回去 [过渡]
-                 *  6 滑动结束的时候，如果滑动的距离超过屏幕的1/3，就切换 [滑动方向 + 过渡]]
-                 */
-                var timer = ''
-                /* 封装定时器函数 */
-                var startInterval = function () {
-                    timer = setInterval(function () {
-                        index++;// 基于索引 做位移
-                        ban.addTransition(imgBox); // 为轮播图片组的ul设置过渡函数
-                        ban.setTranslateX(imgBox, -index * width);// 根据当前索引值计算平移的距离
-                    }, ban.switchTime);
-                }
-                var banner = document.querySelector(".banner");
-                var width = banner.offsetWidth;  // 屏幕的宽度
-                var imgBox = banner.querySelector("ul:first-child");  // 轮播图片ul
-                var length = imgBox.querySelectorAll("li").length; // 图片的个数
-                var pointBox = banner.querySelector("ul:last-child");// 分页器ul
-                var points = pointBox.querySelectorAll("li");// 分页器集合
-                var index = 1; // 初始化索引，由于要无缝衔接，索引从1开始,
-              var isMoveTr = false;//判断是否动画中，防止快速滑动
-                startInterval();
 
-                /* transitionend事件：当元素过渡动画结束后执行
-                    每次轮播动画结束后，判断当前索引值
-                 */
-                imgBox.addEventListener("transitionend", function () {
-                    if (index >= length - 1) {
-                        index = 1;
-                        //  清过渡，瞬间定位imgBox
-                        ban.removeTransition(imgBox);
-                        ban.setTranslateX(imgBox, -index * width);
-                    }
-                    // 滑动的时候也需要无缝
-                    else if (index <= 0) {
-                        index = length-2;
-                        ban.removeTransition(imgBox);
-                        ban.setTranslateX(imgBox, -index * width);
-                    }
-                    showPoint(index - 1); // 改变分页器状态
-                });
+          // 2.结束移动后的回调
+          this.$emit('transitionEnd', this.currentIndex-1);
+        }, this.animDuration)
+      },
 
-                var showPoint = function (index) {
-                  for (var i = 0; i < points.length; i++) {
-                        points[i].className = '';
-                    }
-                    points[index].className = "now";
-                };
-                /* 滑动切换 (touch事件) */
-                var startX = 0; // 触摸起始点
-                imgBox.addEventListener("touchstart", function (e) {
-                    // 记录起始位置的X坐标
-                    clearInterval(timer);
-                    startX = e.touches[0].clientX;
-                });
-                var distanceX = 0;
-                var translateX = 0;
-                // **** 加一个标识，判断用户有没有滑动
-                var isMove = false
-                imgBox.addEventListener("touchmove", function (e) {
-                    var moveX = e.touches[0].clientX;
-                    // 计算位移,有正负方向
-                    distanceX = moveX - startX;
-                    // 计算目标元素的位移
-                    // 元素将要的定位 = 当前定位 + 手指移动的距离
-                    translateX = -index * width + distanceX;
-                    // ********** 要想图片实时地跟着手指走，一定要把过渡清楚掉
-                    ban.removeTransition(imgBox)
-                    ban.setTranslateX(imgBox, translateX);
-                    isMove = true;// 确定用户有滑动
-                    e.preventDefault(); // 去除移动端浏览器默认的滑动事件
-                });
+      /**
+       * 设置滚动的位置
+       */
+      setTransform: function (position) {
+        this.swiperStyle.transform = `translate3d(${position}px, 0, 0)`;
+        this.swiperStyle['-webkit-transform'] = `translate3d(${position}px), 0, 0`;
+        this.swiperStyle['-ms-transform'] = `translate3d(${position}px), 0, 0`;
+      },
 
-                imgBox.addEventListener("touchend", function (e) {
-                    if (isMove) {
-                        if (Math.abs(distanceX) > width / 3) {
-                            // 切换
-                            if (distanceX > 0) {
-                                // 上一张
-                                index = index - 1;
-                            } else {
-                                // 下一张
-                                index = index + 1;
-                            }
+      /**
+       * 操作DOM, 在DOM前后添加Slide
+       */
+      handleDom: function () {
+        // 1.获取要操作的元素
+        let swiperEl = document.querySelector('.swiper');
+        let slidesEls = swiperEl.getElementsByClassName('slide');
 
-                            ban.addTransition(imgBox); // 设置过渡动画
-                            ban.setTranslateX(imgBox, -index * width);
-                            var indexTemp;
-                          if (index >= length-1) {
-                                indexTemp = 1;
-                            }
-                            if (index <= 0) {
-                                indexTemp = length-2;
-                            }
-                            if (indexTemp) {
-                                showPoint(indexTemp - 1);
-                            } else {
-                                showPoint(index - 1);
-                            }
+        // 2.保存个数
+        this.slideCount = slidesEls.length;
 
-
-                        } else {
-                            // 不满足滑动条件，回退到之前的状态
-                            ban.addTransition(imgBox);
-                            ban.setTranslateX(imgBox, -index * width);
-                            showPoint(index - 1);
-                        }
-                    }
-                    // **** 最好做一次参数的重置
-                    startX = 0;
-                    distanceX = 0;
-                    isMove = false;
-                    // ****** 为了严谨，再清一次定时器
-                    clearInterval(timer)
-                    // 加上定时器
-                    startInterval();
-                });
-            }
-        },
-        mounted() {
-          setTimeout(() => {
-            this.init();
-          },500)
+        // 3.如果大于1个, 那么在前后分别添加一个slide
+        if (this.slideCount > 1) {
+          let cloneFirst = slidesEls[0].cloneNode(true);
+          let cloneLast = slidesEls[this.slideCount - 1].cloneNode(true);
+          swiperEl.insertBefore(cloneLast, slidesEls[0]);
+          swiperEl.appendChild(cloneFirst);
+          this.totalWidth = swiperEl.offsetWidth;
+          this.swiperStyle = swiperEl.style;
         }
+
+        // 4.让swiper元素, 显示第一个(目前是显示前面添加的最后一个元素)
+        this.setTransform(-this.totalWidth);
+      },
+
+      /**
+       * 拖动事件的处理
+       */
+      touchStart: function (e) {
+        // 1.如果正在滚动, 不可以拖动
+        if (this.scrolling) return;
+
+        // 2.停止定时器
+        this.stopTimer();
+
+        // 3.保存开始滚动的位置
+        this.startX = e.touches[0].pageX;
+      },
+
+      touchMove: function (e) {
+        // 1.计算出用户拖动的距离
+        this.currentX = e.touches[0].pageX;
+        this.distance = this.currentX - this.startX;
+        let currentPosition = -this.currentIndex * this.totalWidth;
+        let moveDistance = this.distance + currentPosition;
+
+        // 2.设置当前的位置
+        this.setTransform(moveDistance);
+      },
+
+      touchEnd: function (e) {
+        // 1.获取移动的距离
+        let currentMove = Math.abs(this.distance);
+
+        // 2.判断最终的距离
+        if (this.distance === 0) {
+          return
+        } else if (this.distance > 0 && currentMove > this.totalWidth * this.moveRatio) { // 右边移动超过0.5
+          this.currentIndex--
+        } else if (this.distance < 0 && currentMove > this.totalWidth * this.moveRatio) { // 向左移动超过0.5
+          this.currentIndex++
+        }
+
+        // 3.移动到正确的位置
+        this.scrollContent(-this.currentIndex * this.totalWidth);
+
+        // 4.移动完成后重新开启定时器
+        this.startTimer();
+      },
+
+      /**
+       * 控制上一个, 下一个
+       */
+      previous: function () {
+        this.changeItem(-1);
+      },
+
+      next: function () {
+        this.changeItem(1);
+      },
+
+      changeItem: function (num) {
+        // 1.移除定时器
+        this.stopTimer();
+
+        // 2.修改index和位置
+        this.currentIndex += num;
+        this.scrollContent(-this.currentIndex * this.totalWidth);
+
+        // 3.添加定时器
+        this.startTimer();
+      }
     }
+  }
 </script>
 
 <style scoped>
-    *,
-    ::before,
-    ::after{
-        padding: 0;
-        margin: 0;
-        /*兼容移动端主流浏览器*/
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        /*清除移动端点击高亮效果*/
-        -webkit-tap-highlight-color: transparent;
-    }
-    body{
-        /*移动端默认的字体*/
-        font-family:Microsoft YaHei,sans-serif;
-        font-size: 14px;
-        color: #333;
-    }
-    ol,ul{
-        list-style: none;
-    }
-    /*清除浮动*/
-    .clearfix::before,
-    .clearfix::after{
-        content: "";
-        display: block;
-        height: 0;
-        line-height: 0;
-        visibility: hidden;
-        clear: both;
-    }
+  #hy-swiper {
+    overflow: hidden;
+    position: relative;
+  }
 
-    .layout{
-        width: 100%;
-        max-width: 750px;
-        min-width: 320px;
-        margin: 0 auto;
-        position: relative;
-    }
-    .banner{
-        width: 100%;
-        overflow: hidden;
-        position: relative;
-    }
-    .banner ul:first-child{
-        width: 1000%;
-        -webkit-transform: translateX(-10%);
-        transform: translateX(-10%);
-    }
-    .banner ul:first-child li{
-        width: 10%;
-        float: left;
-    }
-    .banner ul:last-child{
-        position: absolute;
-        bottom: 6px;
-        width: 100%;
-        text-align: center;
-    }
-    .banner ul:last-child li{
-        width: 6px;
-        height: 6px;
-        border: 1px solid #fff;
-        border-radius: 50%;
-        display: inline-block;
-        margin-left: 10px;
-    }
-    .banner ul:last-child li:first-child{
-        margin-left: 0;
-    }
-    .banner ul:last-child li.now{
-        background: #fff;
-    }
+  .swiper {
+    display: flex;
+  }
+
+  .indicator {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    bottom: 8px;
+  }
+
+  .indi-item {
+    box-sizing: border-box;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #fff;
+    line-height: 8px;
+    text-align: center;
+    font-size: 12px;
+    margin: 0 5px;
+  }
+
+  .indi-item.active {
+    background-color: rgba(212,62,46,1.0);
+  }
 </style>

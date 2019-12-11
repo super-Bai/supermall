@@ -8,7 +8,7 @@ export function sendHomeData(){
 
 export function sendHomeGoodsdata(type, page) {
   return sendRequest({
-    url: 'home/data',
+    url: '/home/data',
     params: {
       type,
       page

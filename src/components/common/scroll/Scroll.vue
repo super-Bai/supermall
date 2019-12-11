@@ -27,7 +27,7 @@
       }
     },
     methods: {
-      scrollTo (x, y, time=300) {
+      scrollTo (x, y, time = 300) {
         this.scroll && this.scroll.scrollTo(x, y, time)
       },
       finishPullUp () {
@@ -38,12 +38,13 @@
       }
     },
     mounted () {
-      //创建BScroll对象
+      // 创建BScroll对象
       this.scroll = new BScroll(this.$refs.wrapper, {
         click: true,
         probeType: this.probeType,
         pullUpLoad: this.pullUpLoad
       })
+
       //监听scroll滚动
       if (this.probeType == 2 || this.probeType == 3) {
         this.scroll.on('scroll', (position) => {
