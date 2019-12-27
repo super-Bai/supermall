@@ -5,7 +5,10 @@
           <img src="~assets/img/common/back.svg" alt="">
         </div>
         <div class="detail-nav-bar" slot="center" >
-          <div class="detail-nav-item" v-for="(value, index) in topArray" :key="index" @click="navClick(index)" :class="{active : index == currentIndex}">{{value}}</div>
+          <div class="detail-nav-item"
+               v-for="(value, index) in topArray"
+               :key="index" @click="navClick(index)"
+               :class="{active : index == currentIndex}">{{value}}</div>
         </div>
       </nav-bar>
     </div>
@@ -20,11 +23,10 @@
         topArray: {
           type: Array,
           default: []
-        }
-      },
-      data () {
-        return {
-          currentIndex: 0
+        },
+        currentIndex: {
+          type: Number,
+          default: 0
         }
       },
       components: {
@@ -35,7 +37,7 @@
           this.$router.back()
         },
         navClick (index) {
-          this.currentIndex = index
+          this.$emit('detailScrollTo', index)
         }
       }
     }

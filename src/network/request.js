@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const baseURL1 = "http://123.207.32.32:8000/api/v2"
-const baseURL2 = "http://106.54.54.237:8000/api/v1"
+const baseURL1 = "http://123.207.32.32:8000/api/w1"
+const baseURL2 = "http://106.54.54.237:8000/api/w1"
 
 export function sendRequest(config) {
   const instance = axios.create({
@@ -19,7 +19,7 @@ export function sendRequest(config) {
 
   //拦截响应
   instance.interceptors.response.use(res => {
-    // console.log(res);
+    console.log(res.data);
     return res.data;
   }, err => {
     console.log(err);

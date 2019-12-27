@@ -30,6 +30,9 @@
       scrollTo (x, y, time = 300) {
         this.scroll && this.scroll.scrollTo(x, y, time)
       },
+      scrollToElement (el, time=300) {
+        this.scroll && this.scroll.scrollToElement(el, time)
+      },
       finishPullUp () {
         this.scroll.finishPullUp()
       },

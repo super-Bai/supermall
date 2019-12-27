@@ -1,133 +1,170 @@
 <template>
   <div class="cart">
-    <div class="wrapper" ref="aaa">
-      <ul class="content">
-        <li>列表1</li>
-        <li>列表2</li>
-        <li>列表3</li>
-        <li>列表4</li>
-        <li>列表5</li>
-        <li>列表6</li>
-        <li>列表7</li>
-        <li>列表8</li>
-        <li>列表9</li>
-        <li>列表10</li>
-        <li>列表11</li>
-        <li>列表12</li>
-        <li>列表13</li>
-        <li>列表14</li>
-        <li>列表15</li>
-        <li>列表16</li>
-        <li>列表17</li>
-        <li>列表18</li>
-        <li>列表19</li>
-        <li>列表20</li>
-        <li>列表21</li>
-        <li>列表22</li>
-        <li>列表23</li>
-        <li>列表24</li>
-        <li>列表25</li>
-        <li>列表26</li>
-        <li>列表27</li>
-        <li>列表28</li>
-        <li>列表29</li>
-        <li>列表30</li>
-        <li>列表31</li>
-        <li>列表32</li>
-        <li>列表33</li>
-        <li>列表34</li>
-        <li>列表35</li>
-        <li>列表36</li>
-        <li>列表37</li>
-        <li>列表38</li>
-        <li>列表39</li>
-        <li>列表40</li>
-        <li>列表41</li>
-        <li>列表42</li>
-        <li>列表43</li>
-        <li>列表44</li>
-        <li>列表45</li>
-        <li>列表46</li>
-        <li>列表47</li>
-        <li>列表48</li>
-        <li>列表49</li>
-        <li>列表50</li>
-        <li>列表51</li>
-        <li>列表52</li>
-        <li>列表53</li>
-        <li>列表54</li>
-        <li>列表55</li>
-        <li>列表56</li>
-        <li>列表57</li>
-        <li>列表58</li>
-        <li>列表59</li>
-        <li>列表60</li>
-        <li>列表61</li>
-        <li>列表62</li>
-        <li>列表63</li>
-        <li>列表64</li>
-        <li>列表65</li>
-        <li>列表66</li>
-        <li>列表67</li>
-        <li>列表68</li>
-        <li>列表69</li>
-        <li>列表70</li>
-        <li>列表71</li>
-        <li>列表72</li>
-        <li>列表73</li>
-        <li>列表74</li>
-        <li>列表75</li>
-        <li>列表76</li>
-        <li>列表77</li>
-        <li>列表78</li>
-        <li>列表79</li>
-        <li>列表80</li>
-        <li>列表81</li>
-        <li>列表82</li>
-        <li>列表83</li>
-        <li>列表84</li>
-        <li>列表85</li>
-        <li>列表86</li>
-        <li>列表87</li>
-        <li>列表88</li>
-        <li>列表89</li>
-        <li>列表90</li>
-        <li>列表91</li>
-        <li>列表92</li>
-        <li>列表93</li>
-        <li>列表94</li>
-        <li>列表95</li>
-        <li>列表96</li>
-        <li>列表97</li>
-        <li>列表98</li>
-        <li>列表99</li>
-        <li>列表100</li>
+    <nav-bar class="home-nav"><div slot="center">购物车({{cartLength}})</div></nav-bar>
+    <scroll class="cart-scroll" ref="scroll">
+      <cart-main-list :cartList="cartList"></cart-main-list>
+      <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+        <li>9</li>
+        <li>10</li>
+        <li>11</li>
+        <li>12</li>
+        <li>13</li>
+        <li>14</li>
+        <li>15</li>
+        <li>16</li>
+        <li>17</li>
+        <li>18</li>
+        <li>19</li>
+        <li>20</li>
+        <li>21</li>
+        <li>22</li>
+        <li>23</li>
+        <li>24</li>
+        <li>25</li>
+        <li>26</li>
+        <li>27</li>
+        <li>28</li>
+        <li>29</li>
+        <li>30</li>
+        <li>31</li>
+        <li>32</li>
+        <li>33</li>
+        <li>34</li>
+        <li>35</li>
+        <li>36</li>
+        <li>37</li>
+        <li>38</li>
+        <li>39</li>
+        <li>40</li>
+        <li>41</li>
+        <li>42</li>
+        <li>43</li>
+        <li>44</li>
+        <li>45</li>
+        <li>46</li>
+        <li>47</li>
+        <li>48</li>
+        <li>49</li>
+        <li>50</li>
+        <li>51</li>
+        <li>52</li>
+        <li>53</li>
+        <li>54</li>
+        <li>55</li>
+        <li>56</li>
+        <li>57</li>
+        <li>58</li>
+        <li>59</li>
+        <li>60</li>
+        <li>61</li>
+        <li>62</li>
+        <li>63</li>
+        <li>64</li>
+        <li>65</li>
+        <li>66</li>
+        <li>67</li>
+        <li>68</li>
+        <li>69</li>
+        <li>70</li>
+        <li>71</li>
+        <li>72</li>
+        <li>73</li>
+        <li>74</li>
+        <li>75</li>
+        <li>76</li>
+        <li>77</li>
+        <li>78</li>
+        <li>79</li>
+        <li>80</li>
+        <li>81</li>
+        <li>82</li>
+        <li>83</li>
+        <li>84</li>
+        <li>85</li>
+        <li>86</li>
+        <li>87</li>
+        <li>88</li>
+        <li>89</li>
+        <li>90</li>
+        <li>91</li>
+        <li>92</li>
+        <li>93</li>
+        <li>94</li>
+        <li>95</li>
+        <li>96</li>
+        <li>97</li>
+        <li>98</li>
+        <li>99</li>
+        <li>100</li>
       </ul>
-    </div>
+    </scroll>
   </div>
 </template>
 
 <script>
-  import BScroll from 'better-scroll'
+  import CartMainList from './childComponents/CartMainList'
+
+import NavBar from 'components/common/navbar/NavBar'
+
+import Scroll from 'components/common/scroll/Scroll'
+
+import {mapGetters} from 'vuex'
 
 export default {
   name: 'Cart',
+  components: {
+    CartMainList,
+
+    NavBar,
+
+    Scroll
+  },
   data () {
     return {
-      el: null
+      cartList: []
     }
   },
-  mounted() {
-    this.el = new BScroll(this.$refs.aaa)
+  created () {
+    this.cartList = this.storeCart
+  },
+  activated () {
+    this.$refs.scroll.refresh()
+  },
+  computed: {
+    ...mapGetters({
+      storeCart: 'cartList',
+      cartLength: 'cartLength'
+    })
   }
 }
 </script>
 
 <style scoped>
-.wrapper {
-  height: 100px;
-  background: #ff5777;
+  .cart {
+    position: relative;
+    height: 100vh;
+  }
 
-  /*overflow-y: hidden;*/
-}
+  .home-nav {
+    background-color: var(--color-tint);
+    color: #fff;
+  }
+
+  .cart-scroll {
+    position: absolute;
+    top: 44px;
+    right: 0;
+    left: 0;
+    bottom: 49px;
+
+    overflow: hidden;
+  }
 </style>

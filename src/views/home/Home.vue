@@ -32,7 +32,7 @@
   import BackTop from 'components/content/backTop/BackTop'
 
   import {sendHomeData, sendHomeGoodsdata} from "network/home"
-  import {debounce} from "common/utils";
+  import {itemListenerMixin, backTopMixin} from "common/mixin";
 
   export default {
     name: 'Home',
@@ -46,6 +46,7 @@
       Scroll,
       BackTop
     },
+    mixins:[itemListenerMixin, backTopMixin],
     data () {
       return {
         bannerList: [],
@@ -56,7 +57,6 @@
           'sell': {page: 0, list: []}
         },
         currentTab: 'pop',
-        isShowBackTop: false,
         isShowTabControl: false,
         tabControlTop: 0,
         saveY: 0
@@ -69,21 +69,13 @@
       this.sendHomeGoodsdata('new')
       this.sendHomeGoodsdata('sell')
     },
-    mounted () {
-      const refresh = debounce(this.$refs.scroll.refresh, 50)
-      //事件总线监听图片加载（加防抖操作）
-      this.$bus.$on('imgLoad', () => {
-        refresh()
-      })
-    },
     activated: function () {
       this.$refs.hSwiper.startTimer()
     },
     deactivated: function () {
       this.$refs.hSwiper.stopTimer()
-    },
-    destroyed () {
-      console.log('销毁');
+
+      this.$bus.$off('imgLoad', this.loadImg)
     },
     methods: {
       /**
@@ -113,9 +105,6 @@
         }
         this.$refs.tabControl1.currentIndex = index
         this.$refs.tabControl2.currentIndex = index
-      },
-      backTop () {
-        this.$refs.scroll.scrollTo(0, 0)
       },
 
       /**

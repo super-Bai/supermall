@@ -21,7 +21,7 @@
         <span>{{commentInfo.list[0].style}}</span>
       </div>
       <div class="u-img" v-if="commentInfo.list[0].images">
-        <img :src="commentInfo.list[0].images[0]" alt="">
+        <img v-for="(img, index) in commentInfo.list[0].images" :src="img" alt="" :key="index">
       </div>
     </div>
   </div>
@@ -51,9 +51,6 @@
         let date = new Date(val*1000)
         return formatDate(date, 'yyyy-MM-dd')
       }
-    },
-    updated () {
-      console.log(this.commentInfo);
     }
   }
 </script>

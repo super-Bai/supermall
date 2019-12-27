@@ -19,6 +19,9 @@
     },
     components: {
       GoodsListItem
+    },
+    updated() {
+      console.log(this.goods);
     }
   }
 </script>

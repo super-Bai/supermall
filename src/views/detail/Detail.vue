@@ -1,15 +1,23 @@
 <template>
     <div class="detail">
-      <detail-nav-bar :topArray="navMsg"/>
-      <scroll class="content">
-        <detail-swiper :topImg="topImg"/>
+      <detail-nav-bar :topArray="navMsg" :currentIndex="navBarCurrent" @detailScrollTo="detailScrollTo"/>
+      <scroll class="content"
+              ref="scroll"
+              :probeType="3"
+              @scrollBackTop="navBarLink">
+        <ul>
+          <li v-for="item in $store.state.cartList">{{item}}</li>
+        </ul>
+        <detail-swiper :topImg="topImg" ref="swiper"/>
         <detail-base-info :good="good"/>
         <detail-shop-info :shopInfo="shopInfo"/>
         <detail-show-info :showInfo="showInfo"/>
-        <detail-params :showParams="showParams"/>
-        <detail-comment :commentInfo="commentInfo"/>
-        <detail-recommend/>
+        <detail-params :showParams="showParams" ref="params"/>
+        <detail-comment :commentInfo="commentInfo" ref="comment"/>
+        <detail-recommend :recommend="recommend" ref="recommend"/>
       </scroll>
+      <detail-bottom-bar @sendPayload="sendPayload"/>
+      <back-top @click.native="backTop" v-show="isShowBackTop"/>
     </div>
 </template>
 
@@ -22,10 +30,14 @@
   import DetailParams from './childComponents/DetailParams'
   import DetailComment from './childComponents/DetailComment'
   import DetailRecommend from './childComponents/DetailRecommend'
+  import DetailBottomBar from './childComponents/DetailBottomBar'
 
   import Scroll from 'components/common/scroll/Scroll'
 
-  import {getDetailData, Good, ShopInfo, ShowInfo, ShowParams} from "network/detail";
+  import BackTop from 'components/content/backTop/BackTop'
+
+  import {getDetailData, Good, ShopInfo, ShowInfo, ShowParams, getRecommendData} from "network/detail";
+  import {itemListenerMixin, backTopMixin} from "common/mixin";
 
   export default {
     name: "Detail",
@@ -38,9 +50,12 @@
       DetailParams,
       DetailComment,
       DetailRecommend,
+      DetailBottomBar,
 
       Scroll,
+      BackTop
     },
+    mixins: [itemListenerMixin, backTopMixin],
     data () {
       return {
         iid: '',
@@ -51,7 +66,11 @@
         shopInfo: {},
         showInfo: {},
         showParams: {},
-        commentInfo: {}
+        commentInfo: {},
+        recommend: [],
+        navBarEl: [],
+        topArr: [],
+        navBarCurrent: 0
       }
     },
     created () {
@@ -66,8 +85,62 @@
         console.log(res);
         this.topImg.push(...res.result.itemInfo.topImages)
       })
-    },
 
+      getRecommendData().then(res => {
+        this.recommend = res.data.list
+      })
+    },
+    mounted () {
+      this.navBarEl.push(this.$refs.swiper)
+      this.navBarEl.push(this.$refs.params)
+      this.navBarEl.push(this.$refs.comment)
+      this.navBarEl.push(this.$refs.recommend)
+    },
+    updated () {
+      this.setTopArr()
+    },
+    methods: {
+      //添加商品
+      sendPayload () {
+        console.log('添加商品');
+        const item = {
+          title: this.msg.result.itemInfo.title,
+          img: this.showInfo.detailImage[0].list[0],
+          price: this.msg.result.itemInfo.lowNowPrice,
+          desc: this.msg.result.itemInfo.desc,
+          iid: this.iid
+        }
+
+        this.$store.dispatch('addCart', item)
+      },
+      //处理topArr
+      setTopArr () {
+        this.topArr = this.navBarEl.map(x => x.$el.offsetTop)
+        this.topArr.push(Number.MAX_VALUE)
+      },
+      //navBar的相应事件
+      detailScrollTo (index) {
+        this.navBarCurrent = index
+        this.$refs.scroll.scrollToElement(this.navBarEl[index].$el, 500)
+      },
+      //滚动监听事件，navBar
+      navBarLink (position) {
+        //监听backTop显示
+        this.isShowBackTop = (-position.y) > 1000
+
+        //监听navBar转换
+        let nam = this.navBarEl.length
+        for (let i = 0; i < nam; i++) {
+          if (-position.y >= this.topArr[i] && -position.y < this.topArr[i + 1]) {
+            this.navBarCurrent = i
+            return
+          }
+        }
+      }
+    },
+    destroyed() {
+      this.$bus.$off('imgLoad', this.loadImg)
+    }
   }
 </script>
 
@@ -85,7 +158,7 @@
     top: 44px;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 58px;
 
     overflow: hidden;
   }
