@@ -5,9 +5,6 @@
               ref="scroll"
               :probeType="3"
               @scrollBackTop="navBarLink">
-        <ul>
-          <li v-for="item in $store.state.cartList">{{item}}</li>
-        </ul>
         <detail-swiper :topImg="topImg" ref="swiper"/>
         <detail-base-info :good="good"/>
         <detail-shop-info :shopInfo="shopInfo"/>
